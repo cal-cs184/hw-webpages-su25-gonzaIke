@@ -39,8 +39,7 @@
 			Link to GitHub repository: <a href="https://github.com/cal-cs184/hw-rasterizer-ggez">https://github.com/cal-cs184/hw-rasterizer-ggez</a>
 
 			<figure>
-				<img src="images/image1.png" alt="Lion" style="width:50%" />
-				<figcaption>You can add images with captions!</figcaption>
+				<img src="images/image1.png" alt="Lion" style="width:30%" />
 			</figure>
 
 			<!--
@@ -129,51 +128,135 @@
 			</figure>
 
 			<h2>Task 4: Barycentric coordinates</h2>
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			<p>
+				In order to achieve a smooth transition of an object's medium such as color in this case, we will interpolate a specific value found on each vertex of the triangle and essentially spread it evenly across the area inside the triangle. 
+				Barycentric coordinates are used in this case to calculate the weight, represented as alpha, beta, and gamma, that each position holds with respect to the color found in each vertex. It overall depends on how far the coordinate is from these vertices.
+				By weight, I am referring to the cumulative value of the colored vertices at each point that when interpolation is complete, the triangle will have an appearance resembling a color wheel. 
+				If we have a triangle with red, blue, and green vertices, the color inside the triangle will be a shade of the three colors along with the colors in-between, and the closer a point on the triangle is to a vertex, the more it will resemble the color of the vertex due to a higher respective weight.
+			</p>
+			<figure>
+				<img src="images/task4sol_nearest.png" width="500px" />
+				<figcaption>After applying the interpolation method with barycentric coordinates on test7.svg, it resembles a color wheel.</figcaption>
+			</figure>
 
-			<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+			<h2>Task 5: "Pixel sampling" for texture mapping</h2>
+			<p>
+				Pixel sampling is the process of taking the surrounding sample points of the texture point (u, v) and determining the cumulative color of that pixel by its area. It differs between both neighbor sampling (nearest) and interpolation sampling (bilinear).
+			</p>
+			  
+			<p>
+				The nearest sampling method follows a short and simple algorithm:
+				<ol>
+				  <li>Get the UV coordinates of the point.</li>
+				  <li>Get the color from the closest texture point by rounding the coordinates.</li>
+				</ol>
+			</p>
+			  
+			<p>
+				The bilinear sampling method follows a much longer process:
+				<ol>
+				  <li>The first step was to normalize the UV coords to texel space with both x and y, scaling them by the dimensions of the texture (width and height).</li>
+				  <li>Then based on the point, I need to find the surrounding 4 texel coords.
+					<ul>
+					  <li>This was done by finding the max and min of both the x and y points using ceil and floor.</li>
+					</ul>
+				  </li>
+				  <li>After that, the next goal is to get the color of each of the 4 texels.</li>
+				  <li>Then, once I have all the colors, I need to account for the offsets of each texel coordinate.</li>
+				  <li>
+					Last would be to lerp out the weighted combination of the 4 texels to return the final color:
+					<ul>
+					  <li><strong>Linear interpolation (1D):</strong> <code>lerp(x, v0, v1) = v0 + x(v1 - v0)</code></li>
+					  <li><strong>Two helper lerps:</strong>
+						<ul>
+						  <li><code>u0 = lerp(s, u00, u10)</code></li>
+						  <li><code>u1 = lerp(s, u01, u11)</code></li>
+						</ul>
+					  </li>
+					  <li><strong>Final vertical lerp, to get result:</strong>
+						<ul>
+						  <li><code>f(x, y) = lerp(t, u0, u1)</code></li>
+						</ul>
+					  </li>
+					</ul>
+				  </li>
+				</ol>
+			</p>
+			
 			<div style="display: flex; flex-direction: column; align-items: center;">
 				<table style="width: 100%; text-align: center; border-collapse: collapse;">
 				<tr>
 					<td style="text-align: center;">
-					<img src="lion.jpg" width="300px"/>
-					<figcaption>Caption goes here.</figcaption>
+					<img src="images/task5sol2_nearest_1fr.png" width="550px"/>
+					<figcaption>Nearest sampling at 1 sample per pixel.</figcaption>
 					</td>
 					<td style="text-align: center;">
-					<img src="lion.jpg" width="300px"/>
-					<figcaption>Caption goes here.</figcaption>
+					<img src="images/task5sol2_nearest_16fr.png" width="550px"/>
+					<figcaption>Nearest sampling at 16 samples per pixel.</figcaption>
 					</td>
 				</tr>
 				<tr>
 					<td style="text-align: center;">
-					<img src="lion.jpg" width="300px"/>
-					<figcaption>Caption goes here.</figcaption>
+					<img src="images/task5sol2_bilinear_1fr.png" width="550px"/>
+					<figcaption>Bilinear sampling at 1 sample per pixel.</figcaption>
 					</td>
 					<td style="text-align: center;">
-					<img src="lion.jpg" width="300px"/>
-					<figcaption>Caption goes here.</figcaption>
+					<img src="images/task5sol2_bilinear_16fr.png" width="550px"/>
+					<figcaption>Bilinear sampling at 16 samples per pixel.</figcaption>
+					</td>
+				</tr>
+				</table>
+			</div>
+			<p>
+				While the Nearest method is cheaper and faster, it comes at the trade of aliasing and pixelation at a close-up.
+				The Bilinear method is quite the opposite, with noticeably cleaner visuals in deatil, along with a more expensive price and runtime.
+			</p>
+
+ 
+			<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
+			<p>
+				Level sampling is the process of determining which mipmap level of a texture to sample from, based on how much a texture is being minified or magnified at a given screen-space location. This type of sampling adds-on to the texture mapping, but instead of assuming we always stay on Level 0, the lowest level with the highest resolution, we now can also choose a higher level for a lower resolution. We now have to account for the neighbors of the uv coordinates, in order to compute the mipmap level using the formula:
+			</p>
+			  
+			<ul>
+				<li><code>D = log2(max((du/dx)^2 + (dv/dx)^2, (du/dy)^2 + (dv/dy)^2))</code></li>
+			</ul>
+			  
+			<p>
+				We do this to support sampling different Mipmap levels, calculating the uv barycentric coordinates varying (x+1, y+1). In my implementation, I extended my texture sampling function to support multiple level sampling modes (<code>L_ZERO</code>, <code>L_NEAREST</code>, and <code>L_LINEAR</code>) based on the <code>SampleParams</code> struct passed from the rasterizer.
+			</p>
+			  
+			<p>
+				The three sampling techniques have their own tradeoffs. Pixel sampling is the fastest and least space intensive, but can produce visible aliasing that we don't want. Level sampling improves the image quality by selecting appropriate mipmap levels, but at the cost of extra memory for storing mipmaps. Supersampling provides the best anti-aliasing by averaging multiple samples per pixel, but it is the most expensive.
+			</p>
+			  
+
+			<div style="display: flex; flex-direction: column; align-items: center;">
+				<table style="width: 100%; text-align: center; border-collapse: collapse;">
+				<tr>
+					<td style="text-align: center;">
+					<img src="images/task6sol_zeroL_nearestP.png" width="550px"/>
+					<figcaption>Using Level Zero & Nearest Sampling.</figcaption>
+					</td>
+					<td style="text-align: center;">
+					<img src="images/task6sol_zeroL_linearP.png" width="550px"/>
+					<figcaption>Using Level Zero & Linear Sampling.</figcaption>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: center;">
+					<img src="images/task6sol_nearestL_nearestP.png" width="550px"/>
+					<figcaption>Using Nearest Level & Nearest Sampling .</figcaption>
+					</td>
+					<td style="text-align: center;">
+					<img src="images/task6sol_nearestL_linearP.png" width="550px"/>
+					<figcaption>Using Nearest Level & Linear Sampling  .</figcaption>
 					</td>
 				</tr>
 				</table>
 			</div>
 
-			<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-			<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-			<h2>Additional Notes (please remove)</h2>
-			<ul>
-				<li>You can also add code if you'd like as so: <code>code code code</code></li>
-				<li>
-					If you'd like to add math equations,
-					<ul>
-						<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-						<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-					</ul>
-				</li>
-			</ul>
+			
 		</div>
 	</body>
 </html>
