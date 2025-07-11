@@ -27,86 +27,153 @@
 	</head>
 	<body>
 		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 1 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+			<h1>CS184/284A Spring 2025 Homework 1 Write-Up</h1>
+			<div style="text-align: center;">Names: Helin Zhou and Isaac Gonzalez</div>
 
-		<br>
+			<br>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
-		
-		<br>
+			Link to webpage: <a href="https://cal-cs184.github.io/hw-webpages-su25-gonzaIke/">https://cal-cs184.github.io/hw-webpages-su25-gonzaIke/</a>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+			<br>
 
-		<figure>
-			<img src="lion.jpg" alt="Lion" style="width:50%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+			Link to GitHub repository: <a href="https://github.com/cal-cs184/hw-rasterizer-ggez">https://github.com/cal-cs184/hw-rasterizer-ggez</a>
 
-		<!--
-		We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
-		-->
+			<figure>
+				<img src="images/image1.png" alt="Lion" style="width:50%" />
+				<figcaption>You can add images with captions!</figcaption>
+			</figure>
 
-		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
+			<!--
+			We've already added one heading per task, to make your write-up as navigable when grading. Please fit your write-up within these sections!
+			-->
 
-		<h2>Task 1: Drawing Single-Color Triangles</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+			<h2>Overview</h2>
+			<p>
+				This assignment implements an SVG rasterizer that supports anti-aliasing, affine transformations, texture mapping, and more. Through this assignment, I gained an in-depth understanding of the basics of graphics such as triangle rasterization, oversampling antialiasing, affine transforms, center of gravity coordinates, pixel sampling, and multi-level texture sampling. <br>
+				In the process of implementation, I encountered somewhat difficult problems such as sampling buffer management, transformation matrix derivation, and sampling algorithm efficiency. For example, how to manage the supersample buffer efficiently, how to implement the affine transformation matrix correctly, and how to make the sampling algorithm both correct and efficient. Through consulting information, debugging and discussing with classmates, I gradually solved these problems and gained a lot.
+			</p>
 
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-		<div style="display: flex; flex-direction: column; align-items: center;">
-			<table style="width: 100%; text-align: center; border-collapse: collapse;">
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="lion.jpg" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			</table>
-		</div>
-		
-		<h2>Task 2: Antialiasing by Supersampling</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 3: Transforms</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 4: Barycentric coordinates</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 5: "Pixel sampling" for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>(Optional) Task 7: Extra Credit - Draw Something Creative!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
+			<h2>Task 1: Drawing Single-Color Triangles</h2>
+			<p>
+				I implemented triangle rasterization using bounding box scanning and edge function methods. The specific steps are as follows:
 				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
+					<li>First, calculate the bounding box of the triangle, only traverse the pixels within the bounding box to avoid invalid calculations.</li>
+					<li>For each pixel, the sampling point is the center of the pixel (i+0.5, j+0.5).</li>
+					<li>Use the signed area of the three edges (cross product) to determine whether the sampling point is inside or on the edge of the triangle.</li>
+					<li>If the sampling point is inside the triangle, call fill_pixel to fill the pixel.</li>
 				</ul>
-			</li>
-		</ul>
+				My algorithm only traverses pixels within the bounding box of the triangle, and each pixel is only judged once, so the efficiency is consistent with the theoretical lower bound of "only sampling within the bounding box".<br>
+
+				The following is the rendering result of <b>basic/test4.svg</b>, and the pixels at the boundary of the triangle are observed using the pixel inspector, and it can be seen that the color of the boundary pixel changes, indicating that the jaggies are obvious when not anti-aliasing.
+			</p>
+			<figure>
+				<img src="images/screenshot_T1_t4.png" width="400px" />
+				<figcaption>Task 1: test4.svg single-color triangle rasterization, pixel inspector shows boundary pixels.</figcaption>
+			</figure>
+
+			<h2>Task 2: Antialiasing by Supersampling</h2>
+			<p>
+				To solve the problem of jaggies, I implemented oversampling antialiasing (supersampling). The specific steps are as follows:
+				<ul>
+					<li>Each pixel is uniformly distributed with sqrt(sample_rate) x sqrt(sample_rate) sub-sampling points inside.</li>
+					<li>Each sub-sampling point is independently judged whether it is inside the triangle, and the result is written into the supersample buffer.</li>
+					<li>Finally, the color of each pixel is averaged by all sub-sampling points to obtain the final pixel color, achieving the effect of anti-aliasing.</li>
+				</ul>
+				In terms of data structure, the size of sample_buffer is width * height * sample_rate. fill_pixel fills all sub-sampling points for points and lines, rasterize_triangle samples each sub-sampling point, and resolve_to_framebuffer averages all sub-sampling points for each pixel. <br>
+				Oversampling can effectively smooth the edges of triangles, reduce jaggies, and improve image quality.
+			</p>
+			<table style="width: 100%; text-align: center; border-collapse: collapse;">
+				<tr>
+					<td>
+						<img src="images/screenshot_T2_t4_sr1.png" width="300px" />
+						<figcaption>Sample rate = 1</figcaption>
+					</td>
+					<td>
+						<img src="images/screenshot_T2_t4_sr4.png" width="300px" />
+						<figcaption>Sample rate = 4</figcaption>
+					</td>
+					<td>
+						<img src="images/screenshot_T2_t4_sr16.png" width="300px" />
+						<figcaption>Sample rate = 16</figcaption>
+					</td>
+				</tr>
+			</table>
+			<p>
+				As can be seen, the higher the sampling rate, the smoother the edges, and the fewer the jaggies. Especially in the thin corners and sloping edges of the triangle, when sample rate = 16, almost no jaggies can be seen, and when sample rate = 1, the jaggies are very obvious.
+			</p>
+
+			<h2>Task 3: Transforms</h2>
+			<p>
+				I made cubeman do a wave and run pose in my_robot.svg. Here's what I did:
+				<ul>
+					<li>Add a large negative rotation (forward swing/wave) of the right arm, such as <code>&lt;g transform="translate(90 -40) rotate(-60)"&gt;</code></li>
+					<li>Left arm backswing, <code>&lt;g transform="translate(-90 -40) rotate(30)"&gt;</code></li>
+					<li>Left leg front swing, <code>&lt;g transform="translate(-40 90) rotate(-30)"&gt;</code></li>
+					<li>Right leg backswing, <code>&lt;g transform="translate(40 90) rotate(20)"&gt;</code></li>
+					<li>Body overall forward lean, outermost <code>&lt;g transform="translate(250 250) rotate(-15)"&gt;</code></li>
+				</ul>
+				By modifying the transform attribute of each &lt;g&gt; element in SVG, and combining translate and rotate, I achieved independent transformations of limbs and bodies. <br>
+				I hope cubeman looks lively, both waving and greeting as well as making running dynamics. By adjusting the angle of rotation of the limbs and body, the desired effect is achieved.
+			</p>
+			<figure>
+				<img src="images/screenshot_T3_robot.png" width="300px" />
+				<figcaption>Original cubeman</figcaption>
+			</figure>
+			<figure>
+				<img src="images/screenshot_T3_myrobot.png" width="300px" />
+				<figcaption>Waving cubeman</figcaption>
+			</figure>
+			<figure>
+				<img src="images/screenshot_T3_myrobot_run.png" width="300px" />
+				<figcaption>Running cubeman</figcaption>
+			</figure>
+
+			<h2>Task 4: Barycentric coordinates</h2>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+			<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
+			<div style="display: flex; flex-direction: column; align-items: center;">
+				<table style="width: 100%; text-align: center; border-collapse: collapse;">
+				<tr>
+					<td style="text-align: center;">
+					<img src="lion.jpg" width="300px"/>
+					<figcaption>Caption goes here.</figcaption>
+					</td>
+					<td style="text-align: center;">
+					<img src="lion.jpg" width="300px"/>
+					<figcaption>Caption goes here.</figcaption>
+					</td>
+				</tr>
+				<tr>
+					<td style="text-align: center;">
+					<img src="lion.jpg" width="300px"/>
+					<figcaption>Caption goes here.</figcaption>
+					</td>
+					<td style="text-align: center;">
+					<img src="lion.jpg" width="300px"/>
+					<figcaption>Caption goes here.</figcaption>
+					</td>
+				</tr>
+				</table>
+			</div>
+
+			<h2>Task 5: "Pixel sampling" for texture mapping</h2>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+			<h2>Task 6: "Level Sampling" with mipmaps for texture mapping</h2>
+			Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
+
+			<h2>Additional Notes (please remove)</h2>
+			<ul>
+				<li>You can also add code if you'd like as so: <code>code code code</code></li>
+				<li>
+					If you'd like to add math equations,
+					<ul>
+						<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
+						<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
+					</ul>
+				</li>
+			</ul>
 		</div>
 	</body>
 </html>
