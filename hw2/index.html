@@ -47,8 +47,7 @@
 		-->
 
 		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
-
+		All in all, the project helped us achieve much smoother shapes by starting off with flat surfaces in each part.
 		<h2>Section I: Bezier Curves and Surfaces</h2>
 
 		<h3>Part 1: Bezier curves with 1D de Casteljau subdivision</h3>
@@ -302,8 +301,8 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		</p>
 
 		<pre><code>
-		h_bc->setNeighbors(h_ab, h_cb, v_d, e_bc_cb, f_bdc);
-		h_cb->setNeighbors(h_dc, h_bc, v_a, e_bc_cb, f_abc);
+		h_bc -> setNeighbors(h_ab, h_cb, v_d, e_bc_cb, f_bdc);
+		h_cb -> setNeighbors(h_dc, h_bc, v_a, e_bc_cb, f_abc);
 		h_ab -> setNeighbors(h_bd, h_ba, v_a, e_ab_ba, f_bdc); 
 		... 
 		</code></pre>
@@ -311,6 +310,20 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		<p>
 		This involved a lot of tracing and looking back at the table for the Halfedge structure, along with assigning the correct Halfedge pointer to all the vertices, edges, and faces.
 		</p>
+
+		<pre><code>
+		v_a -> halfedge() = h_ab;
+		v_b -> halfedge() = h_bd;
+		... 
+
+		e_ab_ba -> halfedge() = h_ab;
+    		e_ac_ca -> halfedge() = h_ca;
+    		e_bc_cb -> halfedge() = h_cb;  //returning flipped edge
+		...
+
+		FaceIter f_abc = h_ab->face();
+    		FaceIter f_bdc = h_dc->face();
+		</code></pre>
 
 		<p>
 		I ran into an issue regarding my pointers as when I initially flipped some of the edges, a triangle across the operated edge would seem to disappear. I realized either one or a few iterators may have been misplaced in my function, so I went back through the image of my Half-edge table, and after rescanning and retracing each connection, I noticed I had for some reason set the boundary half-edge c->d as the pointer for one of the inner triangle faces, when the correct one was half-edge d->c. 
@@ -331,12 +344,49 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		</div>
 
 		<p>
-		To implement the <code>splitEdge</code> operation, I started by identifying and labeling all original half-edges, vertices, edges, and faces surrounding the edge to be split. Then, I created six new half-edges to form the inner connections to and from the midpoint, as well as three new edges and two new faces. A new midpoint vertex <code>m</code> is created with position set to the average of the two edge endpoints.
+		To implement the <code>splitEdge</code> operation, I started by identifying and labeling all original half-edges, vertices, edges, and faces surrounding the edge to be split. Then, I created six new half-edges to form the inner connections to and from the midpoint, as well as three new edges and two new faces. Another new element was the midpoint vertex <code>m</code> I had to create and return later, with the position set to the average of the two edge endpoints.
 		</p>
 
 		<pre><code>
+		HalfedgeIter h_bc = e0->halfedge();  //bc to b->c, REPRESENTS NEW m->c
+		HalfedgeIter h_ca = h_bc->next();  //c->a
+		HalfedgeIter h_ab = h_ca->next();  //a->b
+		HalfedgeIter h_cb = h_bc->twin();  //c->b, REPRESENTS NEW c->m
+		HalfedgeIter h_bd = h_cb->next();  //b->d
+		HalfedgeIter h_dc = h_bd->next();  //d->c
+		HalfedgeIter h_ac = h_ca->twin();  //a->c
+		HalfedgeIter h_cd = h_dc->twin();  //c->d
+		HalfedgeIter h_db = h_bd->twin();  //d->b
+		HalfedgeIter h_ba = h_ab->twin();  //b->a
+		HalfedgeIter h_am = newHalfedge();
+		HalfedgeIter h_ma = newHalfedge();
+		HalfedgeIter h_bm = newHalfedge();
+		HalfedgeIter h_mb = newHalfedge();
+		HalfedgeIter h_dm = newHalfedge();
+		HalfedgeIter h_md = newHalfedge();
+		
+		VertexIter v_a = h_ab->vertex();
+		VertexIter v_b = h_bc->vertex();
+		VertexIter v_c = h_ca->vertex();
+		VertexIter v_d = h_dc->vertex();
 		VertexIter v_m = newVertex();  
 		v_m->position = ((v_c->position + v_b->position) / 2.0);
+		
+		EdgeIter e_ab_ba = h_ab->edge();
+		EdgeIter e_ac_ca = h_ac->edge();
+		EdgeIter e_bd_db = h_bd->edge();
+		EdgeIter e_cd_dc = h_cd->edge();
+		EdgeIter e_bc_cb = h_bc->edge(); //Reassigned edge bc to mc
+		EdgeIter e_mb_bm = newEdge();
+		EdgeIter e_ma_am = newEdge();
+		e_ma_am -> isNew = true;
+		EdgeIter e_md_dm = newEdge();
+		e_md_dm -> isNew = true; 
+		
+		FaceIter f_abc = h_ab->face(); //now cam triangle
+		FaceIter f_bdc = h_dc->face(); //now dcm triangle
+		FaceIter f_abm = newFace();
+		FaceIter f_bdm = newFace();
 		</code></pre>
 
 		<p>
@@ -348,7 +398,22 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		h_bm->setNeighbors(h_ma, h_mb, v_b, e_mb_bm, f_abm);
 		h_ma->setNeighbors(h_ab, h_am, v_m, e_ma_am, f_abm);
 		...
-		h_md->setNeighbors(h_dc, h_dm, v_m, e_md_dm, f_bdc);
+		
+		v_c -> halfedge() = h_ca;
+		v_d -> halfedge() = h_dc;
+		v_m -> halfedge() = h_ma;
+		...
+	
+		e_bc_cb -> halfedge() = h_bc; //mc-cm
+		e_mb_bm -> halfedge() = h_mb;
+		e_ma_am -> halfedge() = h_ma;
+		e_md_dm -> halfedge() = h_md;
+		...
+	
+		f_abc -> halfedge() = h_bc; //cam
+		f_bdc -> halfedge() = h_md; //dcm
+		f_abm -> halfedge() = h_ma;
+		f_bdm -> halfedge() = h_mb;
 		</code></pre>
 
 		<p>
@@ -382,6 +447,22 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		</figure>
 		</div>
 
+		<p>
+		I did run into a error later on in Part 6, which after hours of looking through my code and thinking it had to do with my edge flip implementation in Part 4 and 6, it was then I realized that the error lied in my Part 5 Edge Split implementation. After being advised to look back at the Discussion 5 slides for the step-by-step process of Loop Subdivision, I realized that after constantly reviewing Slide 69 which states, "For any new edge that connects new vertex to old vertex…", I had to ensure that the two completely new edges (in my case, <code>e_ma_am</code> and <code>e_md_dm</code>) were marked as new.
+		</p>
+
+		<pre><code>
+		//before
+		EdgeIter e_ma_am = newEdge();
+    		EdgeIter e_md_dm = newEdge();
+
+		//after
+		EdgeIter e_ma_am = newEdge();
+    		e_ma_am -> isNew = true;
+    		EdgeIter e_md_dm = newEdge();
+    		e_md_dm -> isNew = true;
+		</code></pre>
+
 		
 		<h3>Part 6: Loop subdivision for mesh upsampling</h3>
 
@@ -389,28 +470,36 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		To implement <code>upsample()</code> for loop subdivision, I followed the five major steps recommended in the spec and class lectures. The goal is to upscale the "resolution" the mesh by introducing new vertices and faces in each existing triangle, while updating positions using the Loop subdivision rules. 
 		</p>
 
-		<div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
-			<figure style="text-align: center;">
-				<img src="images/part6_beforeLoop.png" style="width:350px;">
-				<figcaption>Mesh before a Loop subdivision</figcaption>
-			</figure>
-			<figure style="text-align: center;">
-				<img src="images/part6_afterLoop.png" style="width:350px;">
-				<figcaption>Mesh after applying 1 Loop subdivision</figcaption>
-			</figure>
-		</div>
-
 		<p>
 		<b>Step 1:</b> For each <code>original vertex</code>, I calculated its new position using the Loop subdivision weight formula, which depends on its degree <code>n</code>. I marked all existing vertices as <code>isNew = false</code>. Using a <code>do-while</code> loop to iterate around the 1-ring neighbors worked well here.
 		</p>
 
 		<pre><code>
-		if (n == 3) {
-		u = 3.0 / 16.0;
-		} else {
-		u = 3.0 / (8.0 * n);
-		}
-		v->newPosition = ((1 - n * u) * v->position) + (u * sumNeighbors);
+		for(VertexIter v = mesh.verticesBegin(); v != mesh.verticesEnd(); v++)
+			{
+			  Vector3D sumNeighbors(0.0, 0.0, 0.0);
+			  int n = 0; //degree-vertexEdges
+			  double u; //weight
+			  v -> isNew = false; //original
+		
+			  HalfedgeCIter hCheck = v->halfedge(); //tracker
+			  HalfedgeCIter origin = hCheck;
+		
+			  do {
+				sumNeighbors += hCheck->twin()->vertex()->position; //each neighbor vertex
+				n = n + 1;
+				hCheck = hCheck->twin()->next();
+			  } while (hCheck != origin);  //loop for all sum
+		
+			  if (n == 3) {
+				u = 3.0 / 16.0;
+			  }
+			  else {
+				u = 3.0 / (8.0 * n);
+			  }
+
+			  v -> newPosition = ((1 - n * u) * v->position) + (u * sumNeighbors);
+			}
 		</code></pre>
 
 		<p>
@@ -418,7 +507,20 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		</p>
 
 		<pre><code>
-		e->newPosition = ((3.0 / 8.0) * (a + b)) + ((1.0 / 8.0) * (c + d));
+		for (EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++) {
+			//These vertices don't exist yet, just prep for when they're added via edge split
+			e -> isNew = false;
+
+			//gather for update with weights
+			HalfedgeIter h = e->halfedge();
+			Vector3D a = h->vertex()->position;
+			Vector3D b = h->twin()->vertex()->position;
+			Vector3D c = h->next()->next()->vertex()->position;
+			Vector3D d = h->twin()->next()->next()->vertex()->position;
+
+			//EX edge AB: newPosition = 3/8 * (A + B) + 1/8 * (C + D);
+			e -> newPosition = ((3.0 / 8.0) * (a + b)) + ((1.0 / 8.0) * (c + d));
+		}
 		</code></pre>
 
 		<p>
@@ -426,18 +528,36 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		</p>
 
 		<pre><code>
-		VertexIter v_added = mesh.splitEdge(e);
-		v_added->newPosition = e->newPosition;
-		v_added->isNew = true;
+			std::vector<EdgeIter> ogEdges; //save existing edges to split
+			for (EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++) { //HalfedgeMesh class
+			  if ((e -> isNew) == false)
+			  {
+				ogEdges.push_back(e);
+			  }
+			}
+			
+			for (EdgeIter e : ogEdges) {
+			  if ((e -> isNew) == false) { //safely only split original existing edges
+				VertexIter v_added = mesh.splitEdge(e); //Part 5
+				v_added -> newPosition = e -> newPosition;
+				v_added -> isNew = true;
+			  }
+			}
 		</code></pre>
 
 		<p>
-		<b>Step 4:</b> I flipped all <code>new edges</code> that connect an old and new vertex. However, I believe I ran into an error here, as half of the flips didn't give the expected result. I suspected that it had to do with one of the isNew() assignments but I couldn't find it.
+		<b>Step 4:</b> I flipped all <code>new edges</code> that connect an old and new vertex. 
 		</p>
 
 		<pre><code>
-		if (v1->isNew != v2->isNew) {
-		mesh.flipEdge(e);  // Flipping sometimes breaks the mesh
+		for (EdgeIter e = mesh.edgesBegin(); e != mesh.edgesEnd(); e++) {
+			if (e -> isNew) {
+			  VertexIter v1 = e->halfedge()->vertex();
+			  VertexIter v2 = e->halfedge()->next()->vertex();
+			  if (v1->isNew != v2->isNew) {
+				mesh.flipEdge(e);
+			  }
+			}
 		}
 		</code></pre>
 
@@ -446,9 +566,40 @@ By implementing this, I have a deeper understanding of how to efficiently repres
 		</p>
 
 		<pre><code>
-		v->position = v->newPosition;
+		for (VertexIter v = mesh.verticesBegin(); v != mesh.verticesEnd(); v++) {
+			v -> position = v -> newPosition;
+		}
 		</code></pre>
 
+		<div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
+			<figure style="text-align: center;">
+				<img src="images/part6_beforeLoop.png" style="width:350px;">
+				<figcaption>Mesh before a Loop subdivision</figcaption>
+			</figure>
+			<figure style="text-align: center;">
+				<img src="images/part6_afterLoop.png" style="width:350px;">
+				<figcaption>Mesh after a Loop subdivision</figcaption>
+			</figure>
+		</div>
+
+		<p>
+		Upon looking at the effect a Loop Subdivision has on the mesh above, it has a "sinking" affect as it divides each flat triangle into four while also give each their own unique orientation to make the mesh appear to increase in "resolution", giving it a smoother surface after each loop.
+		</p>
+
+		<div style="display: flex; justify-content: space-around; align-items: center; margin-bottom: 20px;">
+			<figure style="text-align: center;">
+				<img src="images/part6_cubeBefore.png" style="width:350px;">
+				<figcaption>Cube mesh before a Loop subdivision</figcaption>
+			</figure>
+			<figure style="text-align: center;">
+				<img src="images/part6_cubeAfter.png" style="width:350px;">
+				<figcaption>Cube mesh after several Loop subdivisions</figcaption>
+			</figure>
+		</div>
+
+		<p>
+		The cube mesh on the other hand has an asymmetric shape after each iteration, appear uneven and irregular unlike other meshes like the Bean or Teapot.
+		</p>
 		
 		</div>
 	</body>
