@@ -1,109 +1,419 @@
-<html>
-	<head>
-		<script src='https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.4/MathJax.js?config=default'></script>
-		<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
-		<style>
-			h1 {
-				text-align: center;
-			}
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>
+      Ray Marching Collision Detection for Cloth Simulation - Milestone Report
+    </title>
+    <style>
+      @media print {
+        body {
+          font-size: 10pt;
+          line-height: 1.3;
+          margin: 0;
+          padding: 10px;
+          background-color: white;
+        }
+        .content-section {
+          margin-bottom: 15px;
+          padding: 10px;
+          box-shadow: none;
+          border: 1px solid #ccc;
+          page-break-inside: avoid;
+        }
+        h1 {
+          font-size: 16pt;
+          margin-bottom: 5px;
+        }
+        h2 {
+          font-size: 12pt;
+          margin-top: 15px;
+          margin-bottom: 5px;
+        }
+        h3 {
+          font-size: 11pt;
+          margin-top: 10px;
+          margin-bottom: 3px;
+        }
+        p {
+          margin: 5px 0;
+        }
+        ul,
+        ol {
+          margin: 5px 0;
+          padding-left: 20px;
+        }
+        li {
+          margin: 2px 0;
+        }
+        .code-block {
+          font-size: 8pt;
+          padding: 8px;
+          margin: 8px 0;
+          max-height: 200px;
+          overflow-y: auto;
+        }
+        .team-members {
+          gap: 10px;
+          margin: 10px 0;
+        }
+        .team-member {
+          width: 100px;
+          font-size: 9pt;
+        }
+        header {
+          padding: 10px 0;
+          margin-bottom: 15px;
+        }
+        footer {
+          margin-top: 20px;
+          padding: 10px;
+          font-size: 8pt;
+        }
+      }
 
-			.container {
-				margin: 0 auto;
-				padding: 60px 20%;
-			}
+      body {
+        font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+        line-height: 1.6;
+        color: #333;
+        max-width: 900px;
+        margin: 0 auto;
+        padding: 20px;
+        background-color: #f9f9f9;
+      }
+      header {
+        text-align: center;
+        padding: 20px 0;
+        border-bottom: 2px solid #3498db;
+        margin-bottom: 30px;
+      }
+      h1 {
+        color: #2c3e50;
+        margin-bottom: 10px;
+      }
+      h2 {
+        color: #3498db;
+        border-bottom: 1px solid #eee;
+        padding-bottom: 5px;
+        margin-top: 30px;
+      }
+      h3 {
+        color: #2980b9;
+        margin-top: 20px;
+      }
+      .content-section {
+        background-color: white;
+        padding: 20px;
+        border-radius: 5px;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        margin-bottom: 30px;
+      }
+      .image-container {
+        text-align: center;
+        margin: 20px 0;
+      }
+      img {
+        max-width: 100%;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+      }
+      .code-block {
+        background-color: #f5f5f5;
+        border-left: 4px solid #3498db;
+        padding: 15px;
+        margin: 20px 0;
+        overflow-x: auto;
+        font-family: "Courier New", monospace;
+        font-size: 11px;
+        max-height: 300px;
+        overflow-y: auto;
+      }
+      .highlight {
+        background-color: #fffde7;
+        padding: 2px 5px;
+        border-radius: 3px;
+      }
+      footer {
+        text-align: center;
+        margin-top: 40px;
+        padding: 20px;
+        color: #7f8c8d;
+        font-size: 0.9em;
+      }
+      .team-members {
+        display: flex;
+        justify-content: center;
+        flex-wrap: wrap;
+        gap: 20px;
+        margin: 20px 0;
+      }
+      .team-member {
+        text-align: center;
+        width: 150px;
+      }
+      ul,
+      ol {
+        margin: 10px 0;
+        padding-left: 25px;
+      }
+      li {
+        margin: 5px 0;
+      }
+      p {
+        margin: 10px 0;
+      }
+    </style>
+  </head>
+  <body>
+    <header>
+      <h1>Ray Marching Collision Detection for Cloth Simulation</h1>
+      <p>Project Milestone Report</p>
+    </header>
 
-			figure {
-				text-align: center;
-			}
+    <div class="content-section">
+      <h2>Project Overview</h2>
+      <p>
+        Use Ray Marching technology to replace traditional triangle-based
+        collision detection. When cloth interacts with collision objects
+        (spheres), we use Ray Marching through VDB (Voxel Distance Field) or SDF
+        (Signed Distance Field) instead of mesh geometry. This approach
+        considers camera movement effects on ray directions and implements
+        acceleration structures for performance. Compared to traditional HW4
+        methods, Ray Marching will show FPS performance differences.
+      </p>
+      <div class="team-members">
+        <div class="team-member">
+          <p>Isaac Gonzalez</p>
+        </div>
+        <div class="team-member">
+          <p>Buqi Liao</p>
+        </div>
+        <div class="team-member">
+          <p>Alan Wang</p>
+        </div>
+        <div class="team-member">
+          <p>HeLin Zhou</p>
+        </div>
+      </div>
+    </div>
 
-			img {
-				display: inline-block;
-			}
+    <div class="content-section">
+      <h2>Additional Resources</h2>
+      <ul>
+        <li>
+          <strong>Demo Video:</strong>
+          <a
+            href="https://drive.google.com/file/d/1YhB-dxSzpF630Pa4fKCaC5DrERQx7h-Q/view?usp=sharing"
+            target="_blank"
+          >
+            Ray Marching Cloth Simulation Demo
+          </a>
+        </li>
+        <li>
+          <strong>Presentation Slides:</strong>
+          <a
+            href="https://docs.google.com/presentation/d/1k-vzXcmL6GHqnAgVbj-C6vY1j9FQrrka/edit?usp=sharing&ouid=103601152665338938482&rtpof=true&sd=true"
+            target="_blank"
+          >
+            Project Milestone Presentation
+          </a>
+        </li>
+      </ul>
+    </div>
 
-			body {
-				font-family: 'Inter', sans-serif;
-			}
-		</style>
-	</head>
-	<body>
-		<div class="container">
-		<h1>CS184/284A Spring 2025 Homework 4 Write-Up</h1>
-		<div style="text-align: center;">Names: </div>
+    <div class="content-section">
+      <h2>Completed Work</h2>
+      <ul>
+        <li>
+          <strong>Ray Marching Shader:</strong> Volume rendering shader with
+          dynamic camera perspective support
+        </li>
+        <li>
+          <strong>HW4 Integration:</strong> Successfully integrated into cloth
+          simulation platform
+        </li>
+        <li>
+          <strong>Dynamic Perspective:</strong> Camera movement support with
+          lighting effects
+        </li>
+        <li>
+          <strong>Texture System:</strong> Real-time cloth particle position
+          transmission
+        </li>
+        <li>
+          <strong>Volume Rendering:</strong> Basic equations foundation for
+          collision detection
+        </li>
+      </ul>
 
-		<br>
+      <div class="code-block">
+        <pre>
+// Ray Marching shader core implementation
+void main() {
+    vec2 ndc = v_uv * 2.0 - 1.0;
+    vec4 clip = vec4(ndc, -1.0, 1.0);
+    vec4 world = u_inv_view_projection * clip;
+    world /= world.w;
+    vec3 ray_direction = normalize(world.xyz - u_cam_pos);
+    
+    vec3 ray_origin = u_cam_pos;
+    vec3 color = vec3(0.0);
+    float transmittance = 1.0;
+    
+    for (int i = 0; i < MAX_STEPS; i++) {
+        vec3 sample_pos = ray_origin + ray_direction * (i * STEP_SIZE);
+        float density = calculateDensity(sample_pos);
+        
+        if (density > 0.05) {
+            vec3 light_dir = normalize(u_light_pos - sample_pos);
+            float diffuse = max(0.0, dot(normalize(vec3(0, 1, 0)), light_dir));
+            vec3 sample_color = vec3(0.2, 0.6, 0.9) * (0.3 + 0.7 * diffuse) * density;
+            
+            color += sample_color * transmittance * STEP_SIZE;
+            transmittance *= (1.0 - density * 0.15);
+        }
+    }
+    
+    out_color = vec4(mix(background, color, 1.0 - transmittance), 1.0);
+}</pre
+        >
+      </div>
+    </div>
 
-		Link to webpage: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+    <div class="content-section">
+      <h2>Initial Results</h2>
+      <ul>
+        <li>Ray Marching shader responds to camera perspective changes</li>
+        <li>Successfully integrated into HW4 cloth simulation platform</li>
+        <li>Achieved basic volume rendering effects</li>
+        <li>Dynamic lighting changes when rotating view</li>
+        <li>Established cloth particle position data transmission</li>
+      </ul>
+    </div>
 
-		<br>
+    <div class="content-section">
+      <h2>Progress Reflection</h2>
+      <p>Good progress in Ray Marching implementation. Main challenges:</p>
+      <ul>
+        <li>
+          <strong>Camera Movement:</strong> Dynamic camera perspective handling
+          with ray direction calculations
+        </li>
+        <li>
+          <strong>Performance:</strong> Computational optimization for collision
+          detection
+        </li>
+        <li>
+          <strong>Integration:</strong> Successfully integrated into HW4 cloth
+          simulation framework
+        </li>
+        <li>
+          <strong>Data Flow:</strong> Efficient cloth particle position
+          transmission mechanisms
+        </li>
+      </ul>
+      <p>
+        Current progress provides solid foundation for Ray Marching-based
+        collision detection.
+      </p>
+    </div>
 
-		Link to GitHub repository: (TODO) <a href="https://cs184.eecs.berkeley.edu/sp25">cs184.eecs.berkeley.edu/sp25</a>
+    <div class="content-section">
+      <h2>Updated Work Plan</h2>
+      <ol>
+        <li>
+          <strong>SDF/VDB Implementation:</strong> Signed Distance Fields or
+          Voxel Distance Fields for collision objects
+        </li>
+        <li>
+          <strong>Collision Detection:</strong> Ray Marching-based detection
+          replacing traditional triangle methods
+        </li>
+        <li>
+          <strong>Acceleration Structures:</strong> Spatial structures (octrees,
+          BVH) for performance improvement
+        </li>
+        <li>
+          <strong>Performance Analysis:</strong> FPS comparison between Ray
+          Marching and traditional HW4 methods
+        </li>
+        <li>
+          <strong>Dynamic Objects:</strong> Support for moving collision objects
+        </li>
+      </ol>
+    </div>
 
-		<figure>
-			<img src="clothsim.png" alt="Cloth draped over sphere" style="width:70%"/>
-			<figcaption>You can add images with captions!</figcaption>
-		</figure>
+    <div class="content-section">
+      <h2>Technical Details</h2>
+      <h3>Current Ray Marching Implementation</h3>
+      <ul>
+        <li>
+          <strong>Dynamic Ray Direction:</strong> Inverse view-projection matrix
+          for camera movement support
+        </li>
+        <li>
+          <strong>Density Field:</strong> 3D density fields from cloth particle
+          positions
+        </li>
+        <li>
+          <strong>Volume Rendering:</strong> Basic equations demonstrating Ray
+          Marching effects
+        </li>
+        <li>
+          <strong>Performance:</strong> Early exit mechanisms for collision
+          detection optimization
+        </li>
+      </ul>
 
-		<!--
-		We've already added one heading per part, to make your write-up as navigable when grading. Please fit your write-up within these sections!
-		-->
+      <h3>Density Field Calculation</h3>
+      <p>Foundation for subsequent SDF collision detection:</p>
+      <div class="code-block">
+        <pre>
+float calculateDensity(vec3 pos) {
+    float density = 0.0;
+    int samples = 0;
+    
+    for (int i = 0; i < u_cloth_tex_width && samples < 16; i += 3) {
+        for (int j = 0; j < u_cloth_tex_height && samples < 16; j += 3) {
+            samples++;
+            float u = (float(i) + 0.5) / float(u_cloth_tex_width);
+            float v = (float(j) + 0.5) / float(u_cloth_tex_height);
+            vec3 particle_pos = texture(u_cloth_particles_tex, vec2(u, v)).xyz;
+            
+            float dist = length(pos - particle_pos);
+            if (dist < 1.2) {
+                float falloff = 1.0 - dist / 1.2;
+                density += falloff * 0.4;
+                if (density > 0.8) break;
+            }
+        }
+        if (density > 0.8) break;
+    }
+    return min(density, 1.0);
+}</pre
+        >
+      </div>
 
-		<h2>Overview</h2>
-		Give a high-level overview of what you implemented in this homework. Think about what you've built as a whole. Share your thoughts on what interesting things you've learned from completing the homework.
-
-		<h2>Part 1: Masses and springs</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<p>Here is an example 2x2 gridlike structure using an HTML table. Each <b>tr</b> is a row and each <b>td</b> is a column in that row. You might find this useful for framing and showing your result images in an organized fashion.</p>
-		<div style="display: flex; flex-direction: column; align-items: center;">
-			<table style="width: 100%; text-align: center; border-collapse: collapse;">
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			  <tr>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-				<td style="text-align: center;">
-				  <img src="clothsim.png" width="400px"/>
-				  <figcaption>Caption goes here.</figcaption>
-				</td>
-			  </tr>
-			</table>
-		</div>
-
-		<h2>Part 2: Simulation via numerical integration</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Part 3: Handling collisions with other objects</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Part 4: Handling self-collisions</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>Part 5: Shaders</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-
-		<h2>(Optional) Part 6: Extra Credit - Additional cloth simulation features!</h2>
-		Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.
-		
-		<h2>Additional Notes (please remove)</h2>
-		<ul>
-			<li>You can also add code if you'd like as so: <code>code code code</code></li>
-			<li>If you'd like to add math equations, 
-				<ul>
-					<li>You can write inline equations like so: \( a^2 + b^2 = c^2 \)</li>
-					<li>You can write display equations like so: \[ a^2 + b^2 = c^2 \]</li>
-				</ul>
-			</li>
-		</ul>
-		</div>
-	</body>
+      <h3>HW4 Platform Integration</h3>
+      <ul>
+        <li>
+          <strong>Texture System:</strong> 2D textures for cloth particle
+          positions, updated per frame
+        </li>
+        <li>
+          <strong>Shader Integration:</strong> Ray Marching shader in existing
+          rendering pipeline
+        </li>
+        <li>
+          <strong>Camera Support:</strong> Dynamic camera perspective effects
+          handling
+        </li>
+        <li>
+          <strong>Performance Monitoring:</strong> Foundation for performance
+          comparison analysis
+        </li>
+      </ul>
+    </div>
+  </body>
 </html>
